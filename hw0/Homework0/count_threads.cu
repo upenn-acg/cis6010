@@ -23,7 +23,7 @@ __global__ void getTid(int* myTid, int* maxTidPerBlock) {
 }
 
 __global__ void getMaxTid(int* maxTids) {
-	// TODO: find max tid from all the blocks
+	// TODO: find max tid from among all blocks
 }
 
 void __cdecl odprintf(const char *format, ...) {
