@@ -4,3 +4,7 @@
 *.ptx
 *.cubin
 *.fatbin
+hw*/Debug/
+hw*/x64/
+hw*/Homework*/Debug/
+hw*/Homework*/x64/
