@@ -139,9 +139,9 @@ int main() {
 
 	// fill up h_buf
 	for (int y = 0; y < img.GetHeight(); y++) {
-		for (int x = 0; x < img.GetWidth(); x++) {
-			COLORREF c = img.GetPixel(x, y);
-			h_buf[(y * img.GetWidth()) + x] = c;
+		char* imgPixel = (char*)img.GetPixelAddress(0, y);
+		for (int x = 0; x < img.GetWidth(); x++, imgPixel += 3) {
+			h_buf[(y * img.GetWidth()) + x] = RGB(imgPixel[2], imgPixel[1], imgPixel[0]);
 		}
 	}
 
@@ -211,9 +211,12 @@ int main() {
 
 	// WRITE OUT UPDATED IMAGE
 	for (int y = 0; y < img.GetHeight(); y++) {
-		for (int x = 0; x < img.GetWidth(); x++) {
+		char* imgPixel = (char*)img.GetPixelAddress(0, y);
+		for (int x = 0; x < img.GetWidth(); x++, imgPixel += 3) {
 			COLORREF c = h_buf[(y * img.GetWidth()) + x];
-			img.SetPixel(x, y, c);
+			imgPixel[2] = c & 0xFF;
+			imgPixel[1] = (c >> 8) & 0XFF;
+			imgPixel[0] = (c >> 16) & 0xFF;
 		}
 	}
 	img.Save("C:\\Users\\Administrator\\Source\\Repos\\cis601\\hw1\\out.jpg");
