@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define NUM_BLOCKS 4
+#define NUM_BLOCKS 10
 #define WARPS_PER_BLOCK 10 // max of 32
 #define NUM_WARPS (NUM_BLOCKS * WARPS_PER_BLOCK)
 const unsigned WARP_SIZE = 32;
