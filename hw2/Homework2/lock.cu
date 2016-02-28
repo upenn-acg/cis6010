@@ -90,7 +90,8 @@ void lockTest(const LockFlavor flavor) {
 	cudaStatus = cudaDeviceSynchronize();
 	checkCudaErrors(cudaStatus);
 
-	printf("Lock kernel time:  %3.1f ms \n", timer.stop());
+	const float elapsed = timer.stop();
+	printf("Lock kernel time:  %3.1f ms \n", elapsed);
 
 	// CHECK COUNTER VALUE IS CORRECT
 	unsigned expected = 0;
@@ -104,6 +105,8 @@ void lockTest(const LockFlavor flavor) {
 	} else {
 		printf("Counter has expected value of %u\n", expected);
 	}
+
+	printf("Increments/ms: %3.1f\n", expected / elapsed);
 
 	// CLEANUP
 
