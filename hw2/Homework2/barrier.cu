@@ -11,6 +11,7 @@
 const unsigned WARP_SIZE = 32;
 
 /** the interface to a barrier */
+/** The interface to a global (device-wide) barrier. */
 class IBarrier {
 protected:
 	const unsigned m_expected;
@@ -23,9 +24,16 @@ public:
 		arrived = 0;
 		sense = true;
 	}
+
+	/** Each calling thread waits at this call until the barrier's count 
+	has been reached. No thread leaves the barrier until all threads have 
+	arrived. */
 	__device__ virtual void wait() = 0;
 };
 
+/** A sense-reversing centralized global (device-wide) barrier. This 
+barrier can only be called by one thread from each warp. Branch 
+divergence issues must be handled by the caller. */
 class SpinBarrier : public IBarrier {
 protected:
 	WarpLevelLock warpLock;
@@ -38,6 +46,9 @@ public:
 	}
 };
 
+/** A sense-reversing two-level global (device-wide) barrier. This barrier 
+performs block-level barrier before coordinating across blocks. This barrier 
+can safely be called by every thread within a warp. */
 class TwoLevelBarrier : public SpinBarrier {
 public:
 	__device__ TwoLevelBarrier(const unsigned count) : SpinBarrier(count) {}
