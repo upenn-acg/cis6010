@@ -124,12 +124,15 @@ struct pixel_t {
 
 int main() {
 
+	const char* INPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_small.bmp";
+	const char* OUTPUT_REFERENCE_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_small_reference_output.bmp";
+	const char* OUTPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\out.bmp";
+
 	// LOAD IMAGE FROM FILE
-	std::string input_bmp_path = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_large.bmp";
-	bitmap_image img(input_bmp_path);
+	bitmap_image img(INPUT_BMP_PATH);
 
 	if (!img) {
-		printf("Error - Failed to open: %s \r\b", input_bmp_path.c_str());
+		printf("Error - Failed to open: %s \r\b", INPUT_BMP_PATH);
 		return 1;
 	}
 
@@ -227,7 +230,52 @@ int main() {
 			img.set_pixel(x, y, p->red, p->green, p->blue);
 		}
 	}
-	img.save_image("C:\\Users\\Administrator\\Documents\\cis601\\hw1\\out.bmp");
+	img.save_image(OUTPUT_BMP_PATH);
+
+	// VALIDATION
+
+	bool validated = true;
+	bitmap_image ref(OUTPUT_REFERENCE_BMP_PATH);
+
+	if (img.height() != ref.height()) {
+		fprintf(stderr, "Image height should be %u but was %u \r\n", ref.height(), img.height());
+		validated = false;
+	}
+	if (img.width() != ref.width()) {
+		fprintf(stderr, "Image width should be %u but was %u \r\n", ref.width(), img.width());
+		validated = false;
+	}
+	unsigned int differingPixels = 0;
+	double squareDiffSum = 0;
+	for (unsigned int y = 0; y < ref.height(); y++) {
+		for (unsigned int x = 0; x < ref.width(); x++) {
+			rgb_t refPixel, imgPixel;
+			ref.get_pixel(x, y, refPixel);
+			img.get_pixel(x, y, imgPixel);
+			if (refPixel.red != imgPixel.red ||
+				refPixel.green != imgPixel.green ||
+				refPixel.blue != imgPixel.blue) {
+				differingPixels++;
+				
+				// compute square difference
+				unsigned int redDiff = refPixel.red - imgPixel.red;
+				unsigned int greenDiff = refPixel.green - imgPixel.green;
+				unsigned int blueDiff = refPixel.blue - imgPixel.blue;
+				squareDiffSum += (redDiff * redDiff) + (greenDiff * greenDiff) + (blueDiff * blueDiff);
+			}
+		}
+	}
+	if (0 != differingPixels) {
+		fprintf(stderr, "Found %u pixels that differ from the reference image \r\n", differingPixels);
+		double rmsd = sqrt(squareDiffSum / (ref.height() * ref.width()));
+		fprintf(stderr, "RMSD of pixel rgb values is %3.5f \r\n", rmsd);
+		validated = false;
+	}
+
+	if (validated) {
+		printf("Validation passed :-) \r\n");
+	}
+
 
 	// CLEANUP
 
