@@ -129,7 +129,7 @@ int main() {
 	bitmap_image img(input_bmp_path);
 
 	if (!img) {
-		printf("Error - Failed to open: %s \r\b", input_bmp_path);
+		printf("Error - Failed to open: %s \r\b", input_bmp_path.c_str());
 		return 1;
 	}
 
@@ -149,8 +149,8 @@ int main() {
 	pixel_t* h_buf = new pixel_t[img.width() * img.height()];
 
 	// fill up h_buf
-	for (int y = 0; y < img.height(); y++) {
-		for (int x = 0; x < img.width(); x++) {
+	for (unsigned int y = 0; y < img.height(); y++) {
+		for (unsigned int x = 0; x < img.width(); x++) {
 			pixel_t* pixel = &h_buf[(y * img.width()) + x];
 			img.get_pixel(x, y, pixel->red, pixel->green, pixel->blue);
 		}
@@ -167,7 +167,7 @@ int main() {
 	cudaStatus = cudaDeviceGetAttribute(&kernelTimeout, cudaDevAttrKernelExecTimeout, 0/*device*/);
 	checkCudaErrors(cudaStatus);
 	if (kernelTimeout != 0) {
-		printf("WARNING: kernel timeout is enabled!\n", kernelTimeout);
+		printf("WARNING: kernel timeout is enabled! %d \r\n", kernelTimeout);
 	}
 
 	// COPY IMAGE BUFFERS AND FILTER TO DEVICE
@@ -221,8 +221,8 @@ int main() {
 	printf("Copy from device:  %3.1f ms \n", stopTimer());
 
 	// WRITE OUT UPDATED IMAGE
-	for (int y = 0; y < img.height(); y++) {
-		for (int x = 0; x < img.width(); x++) {
+	for (unsigned int y = 0; y < img.height(); y++) {
+		for (unsigned int x = 0; x < img.width(); x++) {
 			const pixel_t* p = &h_buf[(y * img.width()) + x];
 			img.set_pixel(x, y, p->red, p->green, p->blue);
 		}
