@@ -3,6 +3,7 @@
 #include "device_launch_parameters.h"
 #include "helper_cuda.h"
 
+// c/o: http://www.partow.net/programming/bitmap/index.html
 #include "bitmap_image.hpp"
 
 #include <stdio.h>
