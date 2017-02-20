@@ -124,8 +124,8 @@ struct pixel_t {
 
 int main() {
 
-	const char* INPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_small.bmp";
-	const char* OUTPUT_REFERENCE_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_small_reference_output.bmp";
+	const char* INPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_large.bmp";
+	const char* OUTPUT_REFERENCE_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_large_reference_output.bmp";
 	const char* OUTPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\out.bmp";
 
 	// LOAD IMAGE FROM FILE
@@ -200,7 +200,7 @@ int main() {
 		startTimer();
 		dim3 blocksInGrid(img.width() / BLOCKDIM, img.height() / BLOCKDIM);
 		dim3 threadsPerBlock(BLOCKDIM, BLOCKDIM);
-		blurGlobalSharedPixels << <blocksInGrid, threadsPerBlock >> > (d_src, d_dst, d_gaussian);
+		blurGlobal << <blocksInGrid, threadsPerBlock >> > (d_src, d_dst, d_gaussian);
 
 		// Check for any errors launching the kernel
 		cudaStatus = cudaGetLastError();
