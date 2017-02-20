@@ -14,7 +14,7 @@ const int BLOCKDIM = 32;
 
 // Note: this must be an odd number
 __device__ const int FILTER_SIZE = 15;
-__device__ const int FILTER_RADIUS = FILTER_SIZE >> 1;
+__device__ const int FILTER_HALFSIZE = FILTER_SIZE >> 1;
 
 __device__ const int BLUE_MASK = 0x00ff0000;
 __device__ const int GREEN_MASK = 0x0000ff00;
@@ -48,8 +48,8 @@ __global__ void blurGlobal(cudaPitchedPtr src, cudaPitchedPtr dst, float* gaussi
 	for (int ky = 0; ky < FILTER_SIZE; ky++) {
 		for (int kx = 0; kx < FILTER_SIZE; kx++) {
 			// this replicates border pixels
-			int i = index(clamp(x + kx - FILTER_RADIUS, src.xsize / 4),
-				clamp(y + ky - FILTER_RADIUS, src.ysize), src);
+			int i = index(clamp(x + kx - FILTER_HALFSIZE, src.xsize / 4),
+				clamp(y + ky - FILTER_HALFSIZE, src.ysize), src);
 			unsigned int pixel = ((int*)src.ptr)[i];
 			// convolute each channel separately
 			const float k = gaussian[(ky * FILTER_SIZE) + kx];
@@ -200,7 +200,7 @@ int main() {
 		startTimer();
 		dim3 blocksInGrid(img.width() / BLOCKDIM, img.height() / BLOCKDIM);
 		dim3 threadsPerBlock(BLOCKDIM, BLOCKDIM);
-		blurGlobal << <blocksInGrid, threadsPerBlock >> >(d_src, d_dst, d_gaussian);
+		blurGlobalSharedPixels << <blocksInGrid, threadsPerBlock >> > (d_src, d_dst, d_gaussian);
 
 		// Check for any errors launching the kernel
 		cudaStatus = cudaGetLastError();
