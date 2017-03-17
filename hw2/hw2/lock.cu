@@ -35,7 +35,7 @@ __global__ void incrementCounterWarpsOnly() {
 }
 
 __global__ void incrementCounterAllThreads() {
-	// TODO: PART 2
+	// TODO: PART 3
 	// NB: all threads run this code!
 
 	for (unsigned i = 0; i < ITERATIONS; i++) {
