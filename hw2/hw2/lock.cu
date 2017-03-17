@@ -124,15 +124,15 @@ int main() {
 	}
 
 	lockTest(LOCK_PER_WARP);
-
 	printf("\n\n");
 
 	lockTest(LOCK_PER_THREAD);
+	printf("\n\n");
 
+	barrierTest(KERNEL_LAUNCH_BARRIER);
 	printf("\n\n");
 
 	barrierTest(SPIN_BARRIER);
-
 	printf("\n\n");
 
 	barrierTest(TWO_LEVEL_BARRIER);
