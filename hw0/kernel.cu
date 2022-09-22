@@ -10,6 +10,7 @@
 using namespace std;
 
 __global__ void sumKernel(const uint32_t* array, uint32_t numElements) {
+  // TODO: this sum runs totally serially. Parallelize it with at least 32 threads
   if (0 == threadIdx.x) {
     uint64_t sum = 0;
     for (int i = 0; i < numElements; i++) {
