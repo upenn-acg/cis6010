@@ -13,7 +13,7 @@ const double PI = 3.14159265358979323846;
 const int BLOCKDIM = 32;
 
 // Note: this must be an odd number
-__device__ const int FILTER_SIZE = 15;
+__device__ const int FILTER_SIZE = 41;
 __device__ const int FILTER_HALFSIZE = FILTER_SIZE >> 1;
 
 __device__ const int BLUE_MASK = 0x00ff0000;
