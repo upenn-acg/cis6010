@@ -69,7 +69,8 @@ The diagram below shows an [input image](https://commons.wikimedia.org/wiki/File
 
 Here are the performance results I got for the initial code and parts 1-3, running on the `steel_wool_large.bmp` input on an AWS `g4dn.xlarge` instance in November 2022. Your results will likely differ a bit, but this is a guide as to what you should expect from each optimization. I found run-to-run variance to be pretty low, typically <1ms.
 
-![](docs/hw1-runtimes.png)
+
+<img src="docs/hw1-runtimes.png" width="400">
 
 
 
