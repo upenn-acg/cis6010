@@ -124,9 +124,9 @@ struct pixel_t {
 
 int main() {
 
-	const char* INPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_large.bmp";
-	const char* OUTPUT_REFERENCE_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\steel_wool_large_reference_output.bmp";
-	const char* OUTPUT_BMP_PATH = "C:\\Users\\Administrator\\Documents\\cis601\\hw1\\out.bmp";
+	const char* INPUT_BMP_PATH = "images/steel_wool_large.bmp";
+	const char* OUTPUT_REFERENCE_BMP_PATH = "images/steel_wool_large_reference_output.bmp";
+	const char* OUTPUT_BMP_PATH = "out.bmp";
 
 	// LOAD IMAGE FROM FILE
 	bitmap_image img(INPUT_BMP_PATH);
