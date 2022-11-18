@@ -67,9 +67,9 @@ The diagram below shows an [input image](https://commons.wikimedia.org/wiki/File
 
 ## Performance results
 
-Here are the performance results I got for the initial code and parts 1-3, running on the `steel_wool_large.bmp` input. Your results will likely differ a bit, but this is a guide as to what you should expect from each optimization. I found run-to-run variance to be very low, typically <0.2ms. Note that the y-axis is log-scale.
+Here are the performance results I got for the initial code and parts 1-3, running on the `steel_wool_large.bmp` input on an AWS `g4dn.xlarge` instance in November 2022. Your results will likely differ a bit, but this is a guide as to what you should expect from each optimization. I found run-to-run variance to be pretty low, typically <1ms.
 
-![](images/hw1-runtimes.png)
+![](docs/hw1-runtimes.png)
 
 
 
