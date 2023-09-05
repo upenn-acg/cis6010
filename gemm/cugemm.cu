@@ -308,7 +308,7 @@ void runAlgo(Algo algo, cublasHandle_t handle, int M, int N, int K, float alpha,
         break;
     case basic:
     {
-        dim3 gridDim(CEIL_DIV(M, 32), CEIL_DIV(N, 32));
+        dim3 gridDim(ROUND_UP_TO_NEAREST(M, 32), ROUND_UP_TO_NEAREST(N, 32));
         dim3 blockDim(32, 32);
         runBasic<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
         break;
