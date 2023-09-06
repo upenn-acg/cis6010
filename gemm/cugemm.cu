@@ -13,7 +13,7 @@
 
 #define cudaCheck(err) (cudaErrorCheck(err, __FILE__, __LINE__))
 #define cublasCheck(err) (cublasErrorCheck(err, __FILE__, __LINE__))
-#define CEIL_DIV(M, N) (((M) + (N)-1) / (N))
+#define ROUND_UP_TO_NEAREST(M, N) (((M) + (N)-1) / (N))
 
 enum Algo
 {
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
         runAlgo(ALGO, handle, m, n, k, alpha, dA, dB, beta, dC);
     }
 
-    // TODO: measure timing without memory transfers?
+    // measure timing without memory transfers?
     cudaCheck(cudaEventRecord(end));
     cudaCheck(cudaEventSynchronize(beg));
     cudaCheck(cudaEventSynchronize(end));
@@ -269,7 +269,7 @@ bool verify_matrix(float *expected, float *actual, int N)
         diff = std::fabs(expected[i] - actual[i]);
         if (diff > 0.01)
         {
-            // TODO: print divergence in 2D coords, not 1D
+            // print divergence in 2D coords instead?
             printf("Divergence! Should be %5.2f, is %5.2f (Diff %5.2f) at %d\n",
                    expected[i], actual[i], diff, i);
             return false;
@@ -307,12 +307,8 @@ void runAlgo(Algo algo, cublasHandle_t handle, int M, int N, int K, float alpha,
         runCublasFP32(handle, M, N, K, alpha, A, B, beta, C);
         break;
     case basic:
-    {
-        dim3 gridDim(ROUND_UP_TO_NEAREST(M, 32), ROUND_UP_TO_NEAREST(N, 32));
-        dim3 blockDim(32, 32);
-        runBasic<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
+        // TODO: launch runBasic() kernel here
         break;
-    }
     default:
         printf("Invalid algorithm: %d\n", algo);
         exit(EXIT_FAILURE);
