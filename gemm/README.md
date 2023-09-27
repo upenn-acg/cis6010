@@ -60,4 +60,8 @@ sudo /usr/local/cuda-11.8/bin/ncu -o profile-basic --set full ./cugemm-profile.b
 Because we used `--set full` to collect a full set of profiling data, it will take a couple minutes to run. The results 
 are best viewed with the Nvidia Compute Insight profiler running in a graphical environment (i.e., not command-line) on a local machine.
 
-Profiling will reveal an absurd number of uncoalesced global memory accesses. Your first task is to fix these in `runGmemCoalesced`!
+Profiling will reveal an absurd number of uncoalesced global memory accesses. 
+
+## HW1: Fix uncoalesced memory accesses
+
+Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a ~6x speedup (~360 GFLOPS).
