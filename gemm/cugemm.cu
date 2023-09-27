@@ -320,7 +320,7 @@ __global__ void runBasic(int M, int N, int K, half alpha, half *A, half *B, half
 
 __global__ void runGmemCoalesced(int M, int N, int K, half alpha, half *A, half *B, half beta, half *C)
 {
-    // TODO: update runBasic() to avoid uncoalesced accesses to global memory
+    // TODO: copy the runBasic() code here and edit it to avoid uncoalesced accesses to global memory
 }
 
 void runAlgo(Algo algo, cublasHandle_t handle, int M, int N, int K, half alpha,
