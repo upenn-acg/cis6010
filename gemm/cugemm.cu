@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         ("reps", "repeat GEMM this many times", cxxopts::value<uint16_t>()->default_value("1"))                           //
         ("algo", "GEMM algorithm to use, a number in [0,5], 0 is cuBLAS", cxxopts::value<uint16_t>()->default_value("0")) //
         ("validate", "Validate output against cuBLAS", cxxopts::value<bool>()->default_value("true"))                     //
-        ("rngseed", "PRNG seed", cxxopts::value<uint>()->default_value("2"))                     //
+        ("rngseed", "PRNG seed", cxxopts::value<uint>()->default_value("2"))                                              //
         ("h,help", "Print usage");
 
     auto clFlags = options.parse(argc, argv);
@@ -331,7 +331,7 @@ __global__ void runBasic(int M, int N, int K, float alpha, float *A, float *B, f
 
 __global__ void runGmemCoalesced(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C)
 {
-    // TODO: copy runBasic() code here and update to avoid uncoalesced accesses to global memory. 
+    // TODO: copy runBasic() code here and update to avoid uncoalesced accesses to global memory.
     // Note, you are also free to change the grid dimensions.
 }
 
