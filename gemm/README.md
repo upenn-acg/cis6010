@@ -45,11 +45,11 @@ Build & profile the `runBasic` code as follows:
 git checkout ...
 cd <repo-working-copy>/gemm/
 make -j3 all
-./cugemm.bin --reps=1 --algo=1
+./cugemm.bin --size=4096 --reps=1 --algo=1
 ```
 This will build 3 versions of the code: an optimized version, an optimized version with some debugging information for profiling,
 and one without optimizations and extra debugging symbols. 
-When you run the optimized version `cugemm.bin` it should report a performance of around 15 GFLOPS, which is far below what the GPU can provide.
+When you run the optimized version `cugemm.bin` it should report a performance of around 60 GFLOPS, which is far below what the GPU can provide.
 
 Next, we'll profile our kernel to see why it is so slow:
 ```
@@ -64,4 +64,4 @@ Profiling will reveal an absurd number of uncoalesced global memory accesses.
 
 ## HW1: Fix uncoalesced memory accesses
 
-Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a ~6x speedup (~360 GFLOPS).
+Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS).
