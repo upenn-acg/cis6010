@@ -62,6 +62,17 @@ are best viewed with the Nvidia Compute Insight profiler running in a graphical 
 
 Profiling will reveal an absurd number of uncoalesced global memory accesses. 
 
+## Debug
+
+Nvidia ships a number of "compute sanitizers" that check for common memory safety (e.g., out-of-bounds accesses) and concurrency errors. 
+You should run them on your `debug` binaries to get better reporting of where errors are in your source code. They are an easy way to get
+some clues about where to start when your code isn't passing validation.
+
+```
+compute-sanitizer --tool memcheck ./cugemm-debug.bin ...
+compute-sanitizer --tool racecheck ./cugemm-debug.bin ...
+```
+
 ## HW1: Fix uncoalesced memory accesses
 
 Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS).
