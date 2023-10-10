@@ -45,7 +45,7 @@ Build & profile the `runBasic` code as follows:
 git checkout ...
 cd <repo-working-copy>/gemm/
 make -j3 all
-./cugemm.bin --size=4096 --reps=1 --algo=1
+./cugemm.bin --size=2048 --reps=1 --algo=1
 ```
 This will build 3 versions of the code: an optimized version, an optimized version with some debugging information for profiling,
 and one without optimizations and extra debugging symbols. 
@@ -75,7 +75,7 @@ compute-sanitizer --tool racecheck ./cugemm-debug.bin ...
 
 ## HW1: Fix uncoalesced memory accesses
 
-Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS on 2048x2048 input matrices).
+Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS on 2048<sup>2</sup> input matrices).
 
 ## HW2: Use shared memory
 
@@ -83,4 +83,4 @@ Cache tiles of the input matrices into shared memory, to avoid redundant loads t
 
 ## HW3: Multiple results per thread
 
-Have each thread compute multiple cells of the output matrix C, instead of just one. This improves arithmetic intensity and should lift performance further to about ~3 TFLOPS. For reference, cuBLAS was reaching about 7.1 TFLOPS on my instance, so we're over 40% of that optimal performance - not too shabby!
+Have each thread compute multiple cells of the output matrix C, instead of just one. This improves arithmetic intensity and should lift performance further to about ~3 TFLOPS. For reference, cuBLAS was reaching about 7.1 TFLOPS on my instance (with the T4's hardware limit being 8.1 TFLOPS), so we're over 40% of that optimal performance - not too shabby!
