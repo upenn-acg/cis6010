@@ -75,4 +75,12 @@ compute-sanitizer --tool racecheck ./cugemm-debug.bin ...
 
 ## HW1: Fix uncoalesced memory accesses
 
-Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS).
+Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS on 2048x2048 input matrices).
+
+## HW2: Use shared memory
+
+Cache tiles of the input matrices into shared memory, to avoid redundant loads to global memory. This should result in another significant speedup to ~1 TFLOPS.
+
+## HW3: Multiple results per thread
+
+Have each thread compute multiple cells of the output matrix C, instead of just one. This improves arithmetic intensity and should lift performance further to about ~3 TFLOPS. For reference, cuBLAS was reaching about 7.1 TFLOPS on my instance, so we're over 40% of that optimal performance - not too shabby!
