@@ -14,7 +14,7 @@ it much easier to connect to your instance via SSH and VSCode.
 
 I also recommend using VSCode to write your code. Some key extensions to install are `Nsight Visual Studio Code Edition`, 
 `Remote - SSH` and `C/C++ Extension Pack`. This allows you to connect to your instance as a "remote" and write
-code on your local machine.
+code on your local machine. It also provides integration with the `cuda-gdb` debugger which is very helpful.
 
 Finally, install the [Nvidia Compute Insight profiler](https://developer.nvidia.com/tools-overview/nsight-compute/get-started) 
 on your local machine (it's pre-installed on your instance) to allow you to peruse profiling reports easily. Note that you 
@@ -22,7 +22,7 @@ don't need to have an Nvidia GPU to view profiling data. You'll *generate* a pro
 
 ## Code overview
 
-Our GEMM algorithms will operate on matrices with 16-bit float elements, which is the `half` datatype in CUDA.
+Our GEMM algorithms will operate on matrices with 32-bit float elements, which is the `float` datatype in CUDA.
 
 At a high level, the code provided in `cugemm.cu` does the following:
 1. allocates input and output square matrices of the requested size
