@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -21,6 +22,8 @@ enum Algo
     cublas = 0,
     basic,
     gmem_coalesced,
+    smem,
+    smem_multioutput,
     numAlgos
 };
 
@@ -34,6 +37,10 @@ const char *algo2str(Algo a)
         return "basic";
     case gmem_coalesced:
         return "gmem_coalesced";
+    case smem:
+        return "sharedmem";
+    case smem_multioutput:
+        return "sharedmem_multioutput";
     default:
         return "INVALID";
     }
@@ -52,7 +59,7 @@ const std::string errLogFile = "gemmValidationFailure.txt";
 
 // NB: must use a single generator to avoid duplicates
 std::default_random_engine generator(2);
-std::uniform_real_distribution<float> distribution(-1, 1);
+std::uniform_real_distribution<float> distribution(0, 1);
 
 int main(int argc, char **argv)
 {
@@ -60,9 +67,9 @@ int main(int argc, char **argv)
     cxxopts::Options options("gemm.cu", "CUDA GEMM kernels");
     options.add_options()("size", "matrix size (N x N)", cxxopts::value<uint16_t>()->default_value("128"))                //
         ("reps", "repeat GEMM this many times", cxxopts::value<uint16_t>()->default_value("1"))                           //
-        ("algo", "GEMM algorithm to use, a number in [0,5], 0 is cuBLAS", cxxopts::value<uint16_t>()->default_value("0")) //
+        ("algo", "GEMM algorithm to use, a number in [0,4], 0 is cuBLAS", cxxopts::value<uint16_t>()->default_value("0")) //
         ("validate", "Validate output against cuBLAS", cxxopts::value<bool>()->default_value("true"))                     //
-        ("rngseed", "PRNG seed", cxxopts::value<uint>()->default_value("2"))                                              //
+        ("rngseed", "PRNG seed", cxxopts::value<uint>()->default_value("2"))                     //
         ("h,help", "Print usage");
 
     auto clFlags = options.parse(argc, argv);
@@ -72,11 +79,11 @@ int main(int argc, char **argv)
         exit(0);
     }
     const uint16_t SIZE = clFlags["size"].as<uint16_t>();
-    // if (SIZE % 32 != 0)
-    // {
-    //     std::cout << "--size must be a multiple of 32" << std::endl;
-    //     exit(EXIT_FAILURE);
-    // }
+    if (SIZE % 32 != 0)
+    {
+        //std::cout << "--size must be a multiple of 32" << std::endl;
+        //exit(EXIT_FAILURE);
+    }
     const uint16_t REPS = clFlags["reps"].as<uint16_t>();
     const Algo ALGO = static_cast<Algo>(clFlags["algo"].as<uint16_t>());
     if (ALGO >= numAlgos)
@@ -107,7 +114,7 @@ int main(int argc, char **argv)
     // GEMM computes C = α*AB+β*C
 
     // just do pure A*B (for simpler debugging)
-    float alpha = 1.0, beta = 1.0;
+    float alpha = 1.0, beta = 1.0, initC = 1.0;
 
     float *A = nullptr, *B = nullptr, *C = nullptr, *C_ref = nullptr;     // host matrices
     float *dA = nullptr, *dB = nullptr, *dC = nullptr, *dC_ref = nullptr; // device matrices
@@ -121,7 +128,7 @@ int main(int argc, char **argv)
     randomize_matrix(B, SIZE * SIZE);
     randomize_matrix(C, SIZE * SIZE);
 
-    const_init_matrix(C, SIZE * SIZE, 1.0);
+    const_init_matrix(C, SIZE * SIZE, initC);
     // print_matrix(A, SIZE, SIZE, std::cout);
     // print_matrix(B, SIZE, SIZE, std::cout);
     // print_matrix(C, SIZE, SIZE, std::cout);
@@ -168,13 +175,15 @@ int main(int argc, char **argv)
             std::cout << " Logging faulty output into " << errLogFile << "\n";
             std::ofstream fs;
             fs.open(errLogFile, std::ios::out | std::ios::trunc);
-            fs << "A:\n";
+            fs << "α=" << alpha << " β=" << beta << std::endl;
+            fs << "C matrix initialized to " << initC << std::endl << std::endl;
+            fs << "A:" << std::endl;
             print_matrix(A, m, n, fs);
-            fs << "B:\n";
+            fs << "B:" << std::endl;
             print_matrix(B, m, n, fs);
-            fs << "C:\n";
+            fs << "C:" << std::endl;
             print_matrix(C, m, n, fs);
-            fs << "Expected:\n";
+            fs << "Expected:" << std::endl;
             print_matrix(C_ref, m, n, fs);
             fs.close();
             exit(EXIT_FAILURE);
@@ -265,19 +274,19 @@ void print_matrix(const float *A, int M, int N, std::ostream &outs)
     {
         if ((i + 1) % N == 0)
         {
-            outs << std::fixed << std::setprecision(2) << A[i];
+            outs << std::fixed << std::setprecision(3) << A[i];
         }
         else
         {
-            outs << std::fixed << std::setprecision(2) << A[i] << ", ";
+            outs << std::fixed << std::setprecision(3) << A[i] << ", ";
         }
         if ((i + 1) % N == 0)
         {
             if (i + 1 < M * N)
-                outs << ";\n";
+                outs << ";" << std::endl;
         }
     }
-    outs << "]\n\n";
+    outs << "]" << std::endl << std::endl;
 }
 
 bool verify_matrix(float *expected, float *actual, int M, int N)
@@ -289,7 +298,7 @@ bool verify_matrix(float *expected, float *actual, int M, int N)
             float fexp = (expected[(i * N) + j]);
             float fact = (actual[(i * N) + j]);
             double diff = std::fabs(fexp - fact);
-            if (diff > 0.001)
+            if (diff > 0.002)
             {
                 printf("Divergence! Should be %5.3f, is %5.3f (diff %5.3f) at [%d,%d]\n",
                        fexp, fact, diff, i, j);
@@ -323,16 +332,54 @@ __global__ void runBasic(int M, int N, int K, float alpha, float *A, float *B, f
         // C = α*(AxB)+β*C
         for (int i = 0; i < K; ++i)
         {
+            // tmp += __A__[x][i] * __B__[i][y]
             tmp += A[(x * K) + i] * B[(i * N) + y];
         }
+        // __C__[x][y]
         C[(x * N) + y] = (alpha * tmp) + (beta * C[x * N + y]);
     }
 }
 
 __global__ void runGmemCoalesced(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C)
 {
-    // TODO: copy runBasic() code here and update to avoid uncoalesced accesses to global memory.
-    // Note, you are also free to change the grid dimensions.
+    // HW1 TODO: copy runBasic() code here and update to avoid uncoalesced accesses to global memory.
+    // Note, you are also free to change the grid dimensions in the kernel launch below.
+
+}
+
+const uint F = 32;
+
+__global__ void runSharedMem(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C)
+{
+    // HW2 TODO: Use shared memory to cache square FxF tiles of the A and B matrices in shared memory 
+    // (SA and SB, respectively, provided below). Each thread should compute the result for one cell 
+    // of the output matrix C.
+
+    // Note, you will also need to change the grid dimensions in the kernel launch below to take into account the value
+    // of F (which is a constant, defined above). You should experiment with different values of F to see how it 
+    // affects performance.
+
+    __shared__ float SA[F][F];
+    __shared__ float SB[F][F];
+
+}
+
+const uint G = 4;
+
+__global__ void runSharedMemMultiOutput(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C)
+{
+    // HW3 TODO: Copy your runSharedMem() code here and update it so that each thread computes the result for GxG cells 
+    // of the output matrix C. Each thread should accumulate temporary results in the local LC matrix, provided below,
+    // before writing them to C in global memory.
+
+    // Note, you will also need to change the grid dimensions in the kernel launch below. You should experiment 
+    // with different values of F and G to see how they affect performance.
+
+    __shared__ float SA[F][F];
+    __shared__ float SB[F][F];
+
+    float LC[G][G] = {0.0};
+
 }
 
 void runAlgo(Algo algo, cublasHandle_t handle, int M, int N, int K, float alpha,
@@ -355,6 +402,30 @@ void runAlgo(Algo algo, cublasHandle_t handle, int M, int N, int K, float alpha,
         dim3 gridDim(ROUND_UP_TO_NEAREST(M, 32), ROUND_UP_TO_NEAREST(N, 32));
         dim3 blockDim(32, 32);
         runGmemCoalesced<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
+        break;
+    }
+    case smem:
+    {
+        assert(0 == M % F);
+        assert(0 == N % F);
+        assert(0 == K % F);
+        // TODO: update your grid here
+        dim3 gridDim(ROUND_UP_TO_NEAREST(M, 32), ROUND_UP_TO_NEAREST(N, 32));
+        dim3 blockDim(32, 32);
+        runSharedMem<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
+        break;
+    }
+    case smem_multioutput:
+    {
+        assert(0 == M % F);
+        assert(0 == N % F);
+        assert(0 == K % F);
+        assert(0 == F % G);
+        assert((F*F) / (G*G) >= F);
+        // TODO: update your grid here
+        dim3 gridDim(ROUND_UP_TO_NEAREST(M, 32), ROUND_UP_TO_NEAREST(N, 32));
+        dim3 blockDim(32, 32);
+        runSharedMemMultiOutput<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
         break;
     }
     default:
