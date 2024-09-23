@@ -7,7 +7,8 @@ and adds the results to the existing values in the output matrix.
 
 ## Recommended setup
 
-Use an EC2 `g4dn.xlarge` instance (currently the cheapest Nvidia GPU instance) with the `Deep Learning Base GPU AMI (Ubuntu 20.04) 20230830` AMI. 
+Use an EC2 `g4dn.xlarge` instance (currently the cheapest Nvidia GPU instance) with the `ami-05c3e698bd0cffe7e` AMI (an official Ubuntu 20.04 image with Nvidia GPU tools & PyTorch installed). Other AMIs can sometimes have fees associated with them.
+
 You can use the cheapest storage (magnetic HDD) as disk performance doesn't matter for us. 
 I recommend setting up an Elastic IP Address so that you have a consistent DNS name for your instance; it makes 
 it much easier to connect to your instance via SSH and VSCode.
