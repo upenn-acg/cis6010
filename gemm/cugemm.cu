@@ -1,3 +1,7 @@
+// TODO: before you submit on Canvas, include here:
+//   1) which GPU you used and
+//   2) what performance improvement you obtained over previous homework(s)
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
