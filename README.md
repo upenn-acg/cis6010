@@ -5,15 +5,15 @@ In this homework series, you'll optimize a CUDA implementation of
 Note that GEMM is slightly more involved than just matrix multiply: it also uses some constant scaling factors 
 and adds the results to the existing values in the output matrix.
 
-## Recommended Lambda.ai setup
+## Lambda.ai setup
 
 TBD
 
-## Recommended CETS Virtual PC Lab setup
+## CETS Virtual PC Lab setup
 
 TBD
 
-## [Deprecated] Recommended EC2 setup
+## [Deprecated] EC2 setup
 
 Use an EC2 `g4dn.xlarge` instance (currently the cheapest Nvidia GPU instance) with the `ami-05c3e698bd0cffe7e` AMI (an official Ubuntu 20.04 image with Nvidia GPU tools & PyTorch installed). Other AMIs can sometimes have fees associated with them.
 
