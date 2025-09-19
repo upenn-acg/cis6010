@@ -84,7 +84,9 @@ compute-sanitizer --tool racecheck ./cugemm-debug.bin ...
 
 ## HW1: Fix uncoalesced memory accesses
 
-Your first task is to fix the uncoalesced global memory accesses in `runBasic`. Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS on 2048<sup>2</sup> input matrices).
+Your first task is to fix all of the uncoalesced global memory accesses in `runBasic`. Note that you have control over the order in which the elements of the output matrix are computed, and can leverage floating-point commutativity and also assume associativity (even though in reality [floating-point addition and multiplication are not associative](https://en.wikipedia.org/wiki/Floating-point_arithmetic#Accuracy_problems)). You should compute the dot products incrementally in an order that yields coalesced memory accesses.
+
+Copy the `runBasic` code to `runGmemCoalesced` and edit it there. Resolving the issues should result in a significant speedup (~550 GFLOPS on 2048<sup>2</sup> input matrices).
 
 ## HW2: Use shared memory
 
